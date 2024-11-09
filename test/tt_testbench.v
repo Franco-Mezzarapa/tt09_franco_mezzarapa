@@ -3,8 +3,9 @@
 module tt_testbench();
 
     // Parameters
-    localparam MSG_SIZE = 128;
+    localparam MSG_SIZE = 64;
     localparam KEY_SIZE = 8;
+    localparam DEBUG_SIZE = 30; // Define the size of the debug shift register
 
     // Signals
     reg clk;
@@ -17,11 +18,13 @@ module tt_testbench();
     wire [7:0] uio_oe;
 
     // Control signals
-    reg [KEY_SIZE - 1:0] key;              // 8-bit key
-    reg [MSG_SIZE - 1:0] message;          // 128-bit message
+    reg [KEY_SIZE - 1:0] key;               // 8-bit key
+    reg [MSG_SIZE - 1:0] message;           // 64-bit message
     reg [MSG_SIZE - 1:0] rebuilt_ciphertext; // Captured ciphertext from the module's output
-    reg [MSG_SIZE - 1:0] ciphertext;       // Expected ciphertext calculated locally
+    reg [MSG_SIZE - 1:0] ciphertext;        // Expected ciphertext calculated locally
 
+    reg [DEBUG_SIZE - 1:0] rebuilt_debug;   // 24-bit debug shift register
+    integer reset_counter;
     integer i;
 
     // Clock generation (10 MHz)
@@ -34,8 +37,6 @@ module tt_testbench();
         .clk(clk),                    // Clock
         .ena(ena),                    // Enable
         .rst_n(rst_n),                // Reset (active low)
-      
-        // Unused connections
         .ui_in(ui_in),                // Input array (0 is serial line, 1 is key, 2 is msg)
         .uo_out(uo_out),              // Output array (0 is serial line, 1 is out stat, 2 is encrypt stat.)
         .uio_in(uio_in),
@@ -47,23 +48,50 @@ module tt_testbench();
     initial begin
         // Initialize signals
         clk = 0;
-        rst_n = 1;               // Reset is active low, so 1 means reset is inactive here
+        rst_n = 1;                    // Reset is active low, so 1 means reset is inactive here
         ena = 0;
         ui_in = 8'b00000000;
         uio_in = 8'b00000000;
-
-        key = 8'hA5;             // Example 8-bit key
-        message = 128'hD34B8F12A1C56D3E4FA12B6C7D9E2F3A; // Example 128-bit message
+        rebuilt_debug = 0;
         
-        // Enable and reset chip
-        ena = 1;
+        key = 8'hA5;                  // Example 8-bit key
+        message = 64'hA3B1F9D2E7C6A594; // Example 64-bit message
+        
+    // Enable and perform initial reset
+    ena = 1;
+    rst_n = 0; // Assert reset
+    #CLOCK_PERIOD;
+    rst_n = 1; // Release reset
+    #CLOCK_PERIOD;
+    
+    for (i = 0; i < 99; i = i +1) begin
+        rst_n = 0; // Assert reset
         #CLOCK_PERIOD;
-        rst_n = 0;
-        ena = 0;
+        rst_n = 1; // Release reset
+    end
+    
+    
+    // Load the key completely so that oBit_counter_key reaches 8
+    ui_in[1] = 1; // Set key loading flag
+    for (i = KEY_SIZE - 1; i >= 0; i = i - 1) begin
+        ui_in[0] = key[i];
         #CLOCK_PERIOD;
-        rst_n = 1;
-        ena = 1;
-
+    end
+    ui_in[1] = 0;
+    ui_in[0] = 0;
+    
+    // Wait for one more clock cycle to ensure conditions are met
+    #CLOCK_PERIOD;
+    
+        // Setting up control inputs
+        ui_in[3] = 0;
+        ui_in[4] = 0;
+        ui_in[5] = 0;
+        ui_in[6] = 1; // Side channel mode.
+        ui_in[7] = 1; // Another control signal, assuming it's needed
+    
+        
+        
         // Load the key
         ui_in[1] = 1;
         for (i = KEY_SIZE - 1; i >= 0; i = i - 1) begin
@@ -72,7 +100,7 @@ module tt_testbench();
         end
         ui_in[1] = 0;
         ui_in[0] = 0;
-
+        
         // Load the message
         #(CLOCK_PERIOD * 5);
         ui_in[2] = 1;
@@ -86,14 +114,19 @@ module tt_testbench();
         // Wait until ciphertext output is ready (assuming uo_out[1] as a flag)
         wait(uo_out[1]);
         for (i = MSG_SIZE - 1; i >= 0; i = i - 1) begin
-            @(posedge clk)
+            @(posedge clk);
             rebuilt_ciphertext[i] = uo_out[0];
-            #CLOCK_PERIOD;
+        end
+        
+        // Capture 24-bit debug output serially from uo_out[7]
+        for (i = DEBUG_SIZE - 1; i >= 0; i = i - 1) begin
+            @(posedge clk);
+            rebuilt_debug[i] = uo_out[7];
         end
 
         // Perform XOR operation on each 8-bit chunk of the message with the key
-        for (i = 0; i < MSG_SIZE / 8; i = i + 1) begin
-            ciphertext[i*8 +: 8] = message[i*8 +: 8] ^ key;
+        for (i = 0; i < MSG_SIZE / KEY_SIZE; i = i + 1) begin
+            ciphertext[i*KEY_SIZE +: KEY_SIZE] = message[i*KEY_SIZE +: KEY_SIZE] ^ key;
         end
 
         // Display the results
@@ -101,12 +134,19 @@ module tt_testbench();
         $display("Message:             %h", message);
         $display("Computed Ciphertext: %h", ciphertext);
         $display("Rebuilt Ciphertext:  %h", rebuilt_ciphertext);
+        $display("Debug Output (24 bits): %h", rebuilt_debug);
 
         // Compare computed ciphertext with rebuilt_ciphertext
         if (ciphertext == rebuilt_ciphertext) begin
             $display("Test Passed: Ciphertext matches rebuilt_ciphertext.");
+        end else if (64'h0f1d557e4b6a0938 == rebuilt_ciphertext) begin
+            $display("Test Passed: Ciphertext matches XOR with key AC - ui_in[3] - Always Active.");
+        end else if (64'h07f6d250e3b1a7948 == rebuilt_ciphertext) begin
+            $display("Test Passed: Ciphertext matches XOR with key AC - ui_in[4] - Reset Active.");
+        end else if (message == rebuilt_ciphertext) begin
+            $display("Test Passed: Ciphertext matches message (no encryption) - ui_in[5] - No key.");
         end else begin
-            $display("Test Failed: Ciphertext does not match rebuilt_ciphertext.");
+            $display("Test Failed: Ciphertext does not match any expected result.");
         end
 
         $finish; // End the simulation

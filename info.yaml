@@ -21,6 +21,7 @@ project:
     - "deserializer.v"
     - "serializer.v"
     - "xor_encrypt.v"
+    - "shift_register.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
