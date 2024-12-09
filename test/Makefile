@@ -5,8 +5,14 @@
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v
 
+# List of project Verilog source files
+PROJECT_SOURCES = tt_um_franco_mezzarapa.v \
+                  serializer.v \
+                  deserializer.v \
+                  xor_encrypt.v \
+                  shift_register.v
+				  
 ifneq ($(GATES),yes)
 
 # RTL simulation:

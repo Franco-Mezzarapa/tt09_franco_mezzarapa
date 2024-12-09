@@ -5,7 +5,7 @@ module tt_testbench();
     // Parameters
     localparam MSG_SIZE = 64;
     localparam KEY_SIZE = 8;
-    localparam DEBUG_SIZE = 30; // Define the size of the debug shift register
+    localparam DEBUG_SIZE = 24; // Define the size of the debug shift register
 
     // Signals
     reg clk;
@@ -56,20 +56,15 @@ module tt_testbench();
         
         key = 8'hA5;                  // Example 8-bit key
         message = 64'hA3B1F9D2E7C6A594; // Example 64-bit message
-        
-    // Enable and perform initial reset
-    ena = 1;
-    rst_n = 0; // Assert reset
-    #CLOCK_PERIOD;
-    rst_n = 1; // Release reset
-    #CLOCK_PERIOD;
+
     
-    for (i = 0; i < 99; i = i +1) begin
+    for (i = 0; i < 101; i = i +1) begin
         rst_n = 0; // Assert reset
         #CLOCK_PERIOD;
         rst_n = 1; // Release reset
     end
     
+    ena = 1;
     
     // Load the key completely so that oBit_counter_key reaches 8
     ui_in[1] = 1; // Set key loading flag
@@ -85,9 +80,9 @@ module tt_testbench();
     
         // Setting up control inputs
         ui_in[3] = 0;
-        ui_in[4] = 0;
+        ui_in[4] = 1;
         ui_in[5] = 0;
-        ui_in[6] = 1; // Side channel mode.
+        ui_in[6] = 0;
         ui_in[7] = 1; // Another control signal, assuming it's needed
     
         
@@ -141,8 +136,8 @@ module tt_testbench();
             $display("Test Passed: Ciphertext matches rebuilt_ciphertext.");
         end else if (64'h0f1d557e4b6a0938 == rebuilt_ciphertext) begin
             $display("Test Passed: Ciphertext matches XOR with key AC - ui_in[3] - Always Active.");
-        end else if (64'h07f6d250e3b1a7948 == rebuilt_ciphertext) begin
-            $display("Test Passed: Ciphertext matches XOR with key AC - ui_in[4] - Reset Active.");
+        end else if (64'h6f7d351e2b0a6958 == rebuilt_ciphertext) begin
+            $display("Test Passed: Ciphertext matches XOR with key  CC - ui_in[4] - Reset Active.");
         end else if (message == rebuilt_ciphertext) begin
             $display("Test Passed: Ciphertext matches message (no encryption) - ui_in[5] - No key.");
         end else begin

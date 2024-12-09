@@ -26,24 +26,24 @@ project:
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 pinout:
   # Inputs
-  ui[0]: "iClk"
-  ui[1]: "iRst"
-  ui[2]: "iEn"
-  ui[3]: "iSerial_in"
-  ui[4]: "iLoad_key"
-  ui[5]: "iLoad_msg"
+  ui[0]: "Serial Input"
+  ui[1]: "Load Key"
+  ui[2]: "Load Message"
+  ui[3]: "Preselected Key Flag"
+  ui[4]: "Reset Key Flag"
+  ui[5]: "No Key Flag"
   ui[6]: ""
-  ui[7]: ""
+  ui[7]: "Debug Flag"
 
   # Outputs
-  uo[0]: "oEncryption_status"
-  uo[1]: "oSerial_out"
-  uo[2]: "oSerial_flag"
+  uo[0]: "Serial Data Out"
+  uo[1]: "Serial Out Flag"
+  uo[2]: "Encryption Signal"
   uo[3]: ""
   uo[4]: ""
   uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[6]: "Debug Status Flag"
+  uo[7]: "Debug Encoded"
 
   # Bidirectional pins
   uio[0]: ""
