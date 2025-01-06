@@ -102,6 +102,7 @@ shift_register debug_module(
 
 reg [6:0] reset_counter; // 7-bit counter for up to 127 resets
 
+
 // Increment the counter on the rising edge of rst_n
 always @(posedge clk) begin
     if (reset_counter === 7'bxxxxxxx) begin
