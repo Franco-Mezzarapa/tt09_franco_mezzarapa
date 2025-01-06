@@ -102,16 +102,16 @@ shift_register debug_module(
 
 reg [6:0] reset_counter; // 7-bit counter for up to 127 resets
 
-// // Increment the counter on the rising edge of rst_n
-// always @(posedge clk or negedge rst_n) begin
-//     if (reset_counter === 7'bxxxxxxx) begin
-//         reset_counter <= 0; // Initialize to 0 if the counter is in an unknown state
-//     end else if (!rst_n) begin
-//         reset_counter <= reset_counter + 1; // Increment the counter on each reset release
-//     end else if (reset_counter > 101) begin //After the 100 reset meaning 101, reset the counter.
-//         reset_counter <= 0;
-//     end 
-// end
+// Increment the counter on the rising edge of rst_n
+always @(posedge clk or negedge rst_n) begin
+    if (reset_counter === 7'bxxxxxxx) begin
+        reset_counter <= 0; // Initialize to 0 if the counter is in an unknown state
+    end else if (!rst_n) begin
+        reset_counter <= reset_counter + 1; // Increment the counter on each reset release
+    end else if (reset_counter > 101) begin //After the 100 reset meaning 101, reset the counter.
+        reset_counter <= 0;
+    end 
+end
 
 
 // Conditional key selection logic with prioritized conditions
