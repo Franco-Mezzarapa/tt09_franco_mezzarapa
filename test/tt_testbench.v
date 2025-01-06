@@ -57,24 +57,8 @@ module tt_testbench();
         key = 8'hA5;                  // Example 8-bit key
         message = 64'hA3B1F9D2E7C6A594; // Example 64-bit message
 
-    
-    for (i = 0; i < 101; i = i +1) begin
-        rst_n = 0; // Assert reset
-        #CLOCK_PERIOD;
-        rst_n = 1; // Release reset
-    end
-    
     ena = 1;
-    
-    // Load the key completely so that oBit_counter_key reaches 8
-    ui_in[1] = 1; // Set key loading flag
-    for (i = KEY_SIZE - 1; i >= 0; i = i - 1) begin
-        ui_in[0] = key[i];
-        #CLOCK_PERIOD;
-    end
-    ui_in[1] = 0;
-    ui_in[0] = 0;
-    
+
     // Wait for one more clock cycle to ensure conditions are met
     #CLOCK_PERIOD;
     
@@ -85,7 +69,13 @@ module tt_testbench();
         ui_in[6] = 0;
         ui_in[7] = 1; // Another control signal, assuming it's needed
     
-        
+    for (i = 0; i < 101; i = i +1) begin
+        rst_n = 0; // Assert reset
+        #CLOCK_PERIOD;
+        rst_n = 1; // Release reset
+        #CLOCK_PERIOD;
+    end
+    
         
         // Load the key
         ui_in[1] = 1;

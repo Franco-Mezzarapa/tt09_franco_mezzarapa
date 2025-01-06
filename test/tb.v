@@ -22,13 +22,14 @@ module tb ();
   wire [7:0] uo_out;
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
+
 `ifdef GL_TEST
   wire VPWR = 1'b1;
   wire VGND = 1'b0;
 `endif
 
   // Replace tt_um_example with your module name:
-  tt_um_franco_mezzarapa uut (
+tt_um_franco_mezzarapa uut (
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
@@ -43,6 +44,6 @@ module tb ();
       .ena    (ena),      // enable - goes high when design is selected
       .clk    (clk),      // clock
       .rst_n  (rst_n)     // not reset
-  );
+);
 
 endmodule

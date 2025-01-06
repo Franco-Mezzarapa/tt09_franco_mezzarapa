@@ -27,12 +27,6 @@ assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 assign uio_oe  = 8'b0;
 
-// unused output wires.
-//assign uo_out[3] = 1'b0;
-//assign uo_out[4] = 1'b0;
-//assign uo_out[5] = 1'b0;
-//assign uo_out[6] = 1'b0;
-//assign uo_out[7] = 1'b0;
 
 //unused wires *wink*
  wire _unused = &{uio_in,1'b0};
@@ -133,11 +127,9 @@ always @(posedge clk) begin
     end
 end
 
-// // Conditional outputs for debugging
-// assign uo_out[3] = (ena && ui_in[6]) ? ui_in[0] : 1'b0;
-// assign uo_out[4] = (ena && ui_in[6]) ? ui_in[1] : 1'b0;
-// assign uo_out[5] = (ena && ui_in[6]) ? ui_in[2] : 1'b0;
-
-
+// Conditional outputs for debugging
+ assign uo_out[3] = (ena && ui_in[6]) ? ui_in[0] : 1'b0;
+ assign uo_out[4] = (ena && ui_in[6]) ? ui_in[1] : 1'b0;
+ assign uo_out[5] = (ena && ui_in[6]) ? ui_in[2] : 1'b0;
 
 endmodule

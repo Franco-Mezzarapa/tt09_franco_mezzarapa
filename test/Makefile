@@ -1,45 +1,15 @@
-# Makefile
-# See https://docs.cocotb.org/en/stable/quickstart.html for more info
-
 # defaults
 SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
-SRC_DIR = $(PWD)/../src
+SRC_DIR := $(PWD)/../src
 
-# List of project Verilog source files
-PROJECT_SOURCES = tt_um_franco_mezzarapa.v \
-                  serializer.v \
-                  deserializer.v \
-                  xor_encrypt.v \
-                  shift_register.v
-				  
-ifneq ($(GATES),yes)
+# Corrected paths for the Verilog sources using SRC_DIR
+VERILOG_SOURCES = $(SRC_DIR)/xor_encrypt.v $(SRC_DIR)/tt_um_franco_mezzarapa.v $(SRC_DIR)/serializer.v $(SRC_DIR)/deserializer.v $(SRC_DIR)/shift_register.v
 
-# RTL simulation:
-SIM_BUILD				= sim_build/rtl
-VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
-COMPILE_ARGS 		+= -I$(SRC_DIR)
+# use VHDL_SOURCES for VHDL files
 
-else
-
-# Gate level simulation:
-SIM_BUILD				= sim_build/gl
-COMPILE_ARGS    += -DGL_TEST
-COMPILE_ARGS    += -DFUNCTIONAL
-COMPILE_ARGS    += -DUSE_POWER_PINS
-COMPILE_ARGS    += -DSIM
-COMPILE_ARGS    += -DUNIT_DELAY=\#1
-VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
-VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
-
-# this gets copied in by the GDS action workflow
-VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
-
-endif
-
-# Include the testbench sources:
-VERILOG_SOURCES += $(PWD)/tb.v
-TOPLEVEL = tb
+# TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file
+TOPLEVEL = tt_um_franco_mezzarapa
 
 # MODULE is the basename of the Python test file
 MODULE = test
