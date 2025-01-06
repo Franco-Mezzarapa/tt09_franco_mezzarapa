@@ -12,13 +12,14 @@ module serializer #(parameter MSG_SIZE = 64) (  // MSG_SIZE set to 8 for 8-bit d
     integer serial_counter;                     // Counter for serialization
     reg done_serializing;
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             oData_out <= 0;
             oData_flag <= 0;
             serial_counter <= MSG_SIZE - 1;     // Start from MSB position
             done_serializing <= 0;
         end 
+
         else if (ena && iCounter == MSG_SIZE && !done_serializing) begin  // Check if deserialization is complete
             oData_flag <= 1'b1;                  // Set flag during serialization
             if (serial_counter >= 0) begin
