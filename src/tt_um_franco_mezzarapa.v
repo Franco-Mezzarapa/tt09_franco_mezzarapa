@@ -26,12 +26,9 @@ wire [KEY_SIZE - 1:0] key;
 assign uio_out = 8'b0;
 assign uio_oe  = 8'b0;
 assign uio_oe  = 8'b0;
-assign uo_out[6] = 1'b0;
-assign uo_out[7] = 1'b0;
-
 
 //unused wires *wink*
- wire _unused = &{ui_in[7],uio_in,1'b0};
+ wire _unused = &{uio_in,1'b0};
  reg [7:0] selected_key;   
 
 
@@ -87,31 +84,28 @@ serializer #(.MSG_SIZE(MSG_SIZE)) serialize_ciphertext(
     .oData_out(uo_out[0])
 );
 
-// shift_register debug_module(
-//     .clk(clk),
-//     .rst_n(rst_n),
-//     .ena(ena),
+shift_register debug_module(
+    .clk(clk),
+    .rst_n(rst_n),
+    .ena(ena),
     
-//     .key_counter(oBit_counter_key),
-//     .message_counter(oBit_counter_msg),
-//     .ciphertext_counter(oBit_counter_ciphertext),
+    .key_counter(oBit_counter_key),
+    .message_counter(oBit_counter_msg),
+    .ciphertext_counter(oBit_counter_ciphertext),
     
-//     .debug_wire(ui_in[7]),
+    .debug_wire(ui_in[7]),
     
-//     .data_flag(uo_out[6]),
-//     .data_out(uo_out[7])
-// );
+    .data_flag(uo_out[6]),
+    .data_out(uo_out[7])
+);
 
 reg [6:0] reset_counter; // 7-bit counter for up to 127 resets
-reg rst_track;
-
-assign rst_track = rst_n;
 
 // Increment the counter on the rising edge of rst_n
 always @(posedge clk or negedge rst_n) begin
     if (reset_counter === 7'bxxxxxxx) begin
         reset_counter <= 0; // Initialize to 0 if the counter is in an unknown state
-    end else if (!rst_track) begin
+    end else if (!rst_n) begin
         reset_counter <= reset_counter + 1; // Increment the counter on each reset release
     end else if (reset_counter > 101) begin //After the 100 reset meaning 101, reset the counter.
         reset_counter <= 0;
