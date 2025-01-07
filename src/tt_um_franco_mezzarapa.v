@@ -28,10 +28,10 @@ assign uio_oe  = 8'b0;
 assign uio_oe  = 8'b0;
 assign uo_out[6] = 1'b0;
 assign uo_out[7] = 1'b0;
-assign ui_in[7] = 1'b0;
+
 
 //unused wires *wink*
- wire _unused = &{uio_in,1'b0};
+ wire _unused = &{ui_in[7],uio_in,1'b0};
  reg [7:0] selected_key;   
 
 
