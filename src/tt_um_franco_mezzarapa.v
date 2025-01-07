@@ -106,7 +106,7 @@ reg rst_track;
 assign rst_track = rst_n;
 
 // Increment the counter on the rising edge of rst_n
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if (reset_counter === 7'bxxxxxxx) begin
         reset_counter <= 0; // Initialize to 0 if the counter is in an unknown state
     end else if (!rst_track) begin
