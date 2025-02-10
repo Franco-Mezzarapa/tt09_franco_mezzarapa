@@ -118,7 +118,7 @@ end
 // Conditional key selection logic with prioritized conditions
 always @(posedge clk) begin
     if (ui_in[3] && !ui_in[1]) begin
-            selected_key <= 8'hAC;  // Condition 1: Always Active Malicious Key (AC)
+            selected_key <= 8'hAC;  // Condition 1: Always Active Key (AA)
     end else if (ui_in[5] && !ui_in[1]) begin
             selected_key <= 8'h00;  // Condition 3: Disable Key (No Key, set to 0)
     end else if (ui_in[4] && reset_counter == 100) begin // on the 100th reset, alter the key.
