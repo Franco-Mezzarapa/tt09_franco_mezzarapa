@@ -1,4 +1,21 @@
 {
+  "C_Cpp.autocomplete": "default",
+  "C_Cpp.errorSquiggles": "enabled",
+  "C_Cpp.intelliSenseEngine": "default",
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}/verification/obj_dir",
+    "/usr/share/verilator/include",
+    "/usr/share/verilator/include/vltstd"
+  ],
+  "C_Cpp.default.defines": [
+    "VM_COVERAGE=1",
+    "VM_TRACE=1"
+  ],
+  "files.associations": {
+    "*.v": "verilog",
+    "*.sv": "systemverilog"
+  },
   "verilog.linting.linter": "verilator",
+  "verilog.linting.enabled": true,
   "verilog.formatting.verilogHDL.formatter": "verible-verilog-format"
 }

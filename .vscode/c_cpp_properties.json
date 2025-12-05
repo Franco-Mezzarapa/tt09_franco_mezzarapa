@@ -1,0 +1,29 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "Linux",
+      "compilerPath": "/usr/bin/g++",
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "linux-gcc-x64",
+      "includePath": [
+        "${workspaceFolder}/verification/obj_dir",
+        "/usr/share/verilator/include",
+        "/usr/share/verilator/include/vltstd"
+      ],
+      "browse": {
+        "path": [
+          "${workspaceFolder}/verification/obj_dir",
+          "/usr/share/verilator/include",
+          "/usr/share/verilator/include/vltstd"
+        ],
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "defines": [
+        "VM_COVERAGE=1",
+        "VM_TRACE=1"
+      ]
+    }
+  ]
+}
