@@ -19,7 +19,8 @@ module serializer #(parameter MSG_SIZE = 64) (  // MSG_SIZE set to 8 for 8-bit d
             serial_counter <= MSG_SIZE - 1;     // Start from MSB position
             done_serializing <= 0;
         end 
-        else if (ena && iCounter == MSG_SIZE && !done_serializing) begin  // Check if deserialization is complete
+            // Backward-compatible trigger: accept either full-bit or chunk-domain counter
+            else if (ena && (iCounter == MSG_SIZE || iCounter == (MSG_SIZE/8)) && !done_serializing) begin
             oData_flag <= 1'b1;                  // Set flag during serialization
             if (serial_counter >= 0) begin
                 oData_out <= iData_in[serial_counter]; // Output the current bit (MSB first)

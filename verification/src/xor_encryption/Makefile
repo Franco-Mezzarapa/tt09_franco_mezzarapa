@@ -43,7 +43,7 @@ coverage: run
 	@echo "Generating LCOV info file..."
 	@verilator_coverage --write-info logs/coverage.info logs/coverage.dat
 	@echo "Generating HTML report..."
-	@genhtml logs/coverage.info --output-directory coverage_html
+	@genhtml logs/coverage.info --output-directory coverage_html --ignore-errors source --synthesize-missing
 	@echo "Coverage report generated in coverage_html/ directory."
 
 clean:

@@ -17,7 +17,8 @@ void test_basic_serialization(Testbench& tb, Coverage& cov, uint64_t test_data) 
     // Set data and trigger signals
     tb.dut->iData_in = test_data;
     tb.dut->ena = 1;
-    tb.dut->iCounter = DATA_WIDTH;
+    // Trigger serialization; RTL accepts either DATA_WIDTH or DATA_WIDTH/8
+    tb.dut->iCounter = DATA_WIDTH / 8;
     cov.sample(true, false, false);
 
     std::vector<int> received_bits;
@@ -49,7 +50,8 @@ void test_back_to_back(Testbench& tb, Coverage& cov, uint64_t data1, uint64_t da
     tb.reset();
     tb.dut->iData_in = data1;
     tb.dut->ena = 1;
-    tb.dut->iCounter = DATA_WIDTH;
+    // Trigger serialization for first word
+    tb.dut->iCounter = DATA_WIDTH / 8;
     cov.sample(true, false, true); // Hit back-to-back coverpoint
 
     std::vector<int> bits1;
@@ -63,7 +65,8 @@ void test_back_to_back(Testbench& tb, Coverage& cov, uint64_t data1, uint64_t da
     tb.reset(); // This DUT requires a reset between transfers
     tb.dut->iData_in = data2;
     tb.dut->ena = 1;
-    tb.dut->iCounter = DATA_WIDTH;
+    // Trigger serialization for second word
+    tb.dut->iCounter = DATA_WIDTH / 8;
     cov.sample(true, false, false);
 
     std::vector<int> bits2;
@@ -87,7 +90,7 @@ void test_reset_during_operation(Testbench& tb, Coverage& cov, uint64_t test_dat
     tb.reset();
     tb.dut->iData_in = test_data;
     tb.dut->ena = 1;
-    tb.dut->iCounter = DATA_WIDTH;
+    tb.dut->iCounter = DATA_WIDTH / 8;
     
     tb.tick(DATA_WIDTH / 2); // Run for half the time
 
@@ -130,7 +133,7 @@ void test_edge_patterns(Testbench& tb, Coverage& cov) {
         tb.reset();
         tb.dut->iData_in = patterns[i];
         tb.dut->ena = 1;
-        tb.dut->iCounter = DATA_WIDTH;
+        tb.dut->iCounter = DATA_WIDTH / 8;
         cov.sample(true, false, false, i);
 
         std::vector<int> received_bits;

@@ -1,0 +1,109 @@
+-------------- Deserializer  8-bit --------------------------
+==== Functional Coverage Report ====
+Width coverage:  8-bit=14340, 32-bit=0, 64-bit=0
+Enable (ena) coverage: disabled=2048, enabled=12292
+Flag active hits: 10244
+Partial flag hits: 2048
+Reset hits: 4096
+Overflow events: 2048
+Underflow events: 2048
+Total samples: 14340
+
+==== Test Pass Rates ====
+Normal:         2052/2052 (100.00%)
+Overflow:       2048/2048 (100.00%)
+Underflow:      2048/2048 (100.00%)
+Enable toggle:  2048/2048 (100.00%)
+====================================
+------------- Deserializer 64-bit -----------
+==== Functional Coverage Report ====
+Width coverage:  8-bit=0, 32-bit=0, 64-bit=14340
+Enable (ena) coverage: disabled=2048, enabled=12292
+Flag active hits: 10244
+Partial flag hits: 2048
+Reset hits: 4096
+Overflow events: 2048
+Underflow events: 2048
+Total samples: 14340
+
+==== Test Pass Rates ====
+Normal:         2052/2052 (100.00%)
+Overflow:       2048/2048 (100.00%)
+Underflow:      2048/2048 (100.00%)
+Enable toggle:  2048/2048 (100.00%)
+====================================
+-----------Serializer ----------------------------
+==== Functional Coverage Report ====
+Load events: 6148
+Back-to-back transfer events: 2048
+Reset during operation events: 2048
+Data Pattern Bins:
+  - All Zeros: 1
+  - All Ones:  1
+  - Alt 'A':   1
+  - Alt '5':   1
+
+==== Test Pass/Fail Report ====
+Basic Serialization:   2048 passed, 0 failed (100.00% pass rate)
+Back-to-Back:          2048 passed, 0 failed (100.00% pass rate)
+Reset During Op:       2048 passed, 0 failed (100.00% pass rate)
+Edge Patterns:         1 passed, 0 failed (100.00% pass rate)
+------------------------------------
+Total:                 6145 passed, 0 failed (100.00% pass rate)
+====================================
+
+--------- XOR Encrypt ------------------
+==== Functional Coverage Report ====
+Zero Key (0x00) tested:    13 times
+All-Ones Key (0xFF) tested: 6 times
+Zero Data tested:          1 times
+All-Ones Data tested:      1 times
+Total random trials:       2052
+
+==== Test Pass/Fail Report ====
+Tests Passed: 2052
+Tests Failed: 0
+Pass Rate:    100.00%
+=================================
+
+---------- Integration
+
+==== Connectivity Coverage Report ====
+  - Key Deserializer Triggered:      512 times
+  - Message Deserializer Triggered:  512 times
+  - XOR Encrypt Module Triggered:    512 times
+  - Serializer Module Triggered:     512 times
+
+==== Test Pass/Fail Report ====
+End-to-End Tests Passed: 512
+End-to-End Tests Failed: 0
+Pass Rate:               100.00%
+=================================
+
+All end-to-end tests passed!
+make[1]: Leaving directory '/home/users/fmezzarapa/Desktop/tt09_franco_mezzarapa/verification/src/integration_test'
+
+--- Collecting *.dat files and generating merged report ---
+Merging:  src/deserializer/logs/coverage_64.dat src/deserializer/logs/coverage_8.dat src/serializer/logs/coverage_64.dat src/xor_encryption/logs/coverage.dat src/integration_test/logs/coverage_top.dat
+
+--- Generating final HTML report ---
+Found 4 entries.
+Found common filename prefix "/home/users/fmezzarapa/Desktop/tt09_franco_mezzarapa/verification/../.."
+Generating output.
+Processing file ../../rtl/xor_encrypt.v
+  lines=22 hit=20
+Processing file ../../rtl/deserializer.v
+  lines=15 hit=15
+Processing file ../../rtl/serializer.v
+  lines=23 hit=21
+Processing file ../../rtl/tt_um_franco_mezzarapa.v
+  lines=14 hit=8
+Overall coverage rate:
+  lines......: 86.5% (64 of 74 lines)
+  functions......: no data found
+
+
+>>> Unified coverage report generated in: verification/coverage/final_html_report/index.html <<<
+
+
+Action 'coverage' for module 'all' completed successfully.

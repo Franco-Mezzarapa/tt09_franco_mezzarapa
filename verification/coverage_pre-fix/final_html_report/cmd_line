@@ -1,0 +1,1 @@
+genhtml coverage/full_coverage.info --output-directory coverage/final_html_report --ignore-errors source --synthesize-missing

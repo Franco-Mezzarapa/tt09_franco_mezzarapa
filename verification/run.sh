@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status.
+# Exit immediately for general actions; will be relaxed for 'report'.
 set -e
 
 # Use all available processor cores for parallel jobs, or default to 1 if nproc isn't available.
@@ -10,13 +10,14 @@ JOBS=$(nproc 2>/dev/null || echo 1)
 usage() {
     echo "Verification Workflow Manager"
     echo ""
-    echo "Usage: $0 {build|test|coverage|clean} {module|all}"
+    echo "Usage: $0 {build|test|coverage|clean|report} {module|all}"
     echo ""
     echo "Actions:"
     echo "  build       - Compiles the testbench for a specific module or all modules."
     echo "  test        - Runs the tests for a specific module or all modules."
     echo "  coverage    - Runs tests and generates a coverage report for a specific module or all modules."
     echo "  clean       - Removes generated files for a specific module or all modules."
+    echo "  report      - Runs all tests without stopping on failures and writes a PASS/FAIL summary."
     echo ""
     echo "Modules:"
     echo "  deserializer"
@@ -84,6 +85,31 @@ case $ACTION in
         else
             make -C src/$TARGET_DIR clean
         fi
+        ;;
+
+    report)
+        echo "--- Running PASS/FAIL report for: $MODULE ---"
+        # Disable immediate exit to allow summary across modules
+        set +e
+        if [ "$MODULE" == "all" ]; then
+            make test_report JOBS=$JOBS
+        else
+            # Per-module report: run tests and capture exit
+            mkdir -p report
+            MODULE_PATH="src/$TARGET_DIR"
+            echo "Running tests for $MODULE..."
+            (make -j$JOBS -C "$MODULE_PATH" run JOBS=$JOBS)
+            STATUS=$?
+            if [ $STATUS -eq 0 ]; then
+                RESULT="PASS"
+            else
+                RESULT="FAIL"
+            fi
+            echo "$MODULE: $RESULT" | tee "report/${MODULE}_summary.txt"
+            echo "Summary written to verification/report/${MODULE}_summary.txt"
+        fi
+        # Re-enable strict mode for remainder
+        set -e
         ;;
 
     *)

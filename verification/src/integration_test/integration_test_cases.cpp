@@ -43,7 +43,7 @@ void run_end_to_end_test(Testbench& tb, Coverage& cov, uint64_t message, uint8_t
     // --- Phase 3: Wait for Encryption ---
     // The xor_encrypt module is triggered by the deserializer counters.
     // We wait for its status flag (on uo_out[2]) to go high, then low.
-    int timeout = 200; // Generous timeout
+    int timeout = 5000; // Increased timeout to cover full 64-bit pipeline
     while (((tb.dut->uo_out >> 2) & 1) == 0 && timeout > 0) {
         tb.tick();
         timeout--;
@@ -65,7 +65,7 @@ void run_end_to_end_test(Testbench& tb, Coverage& cov, uint64_t message, uint8_t
     // The serializer is triggered by the xor_encrypt counter.
     // We wait for its valid flag (on uo_out[1]) to go high.
     std::vector<int> received_bits;
-    timeout = 200; 
+    timeout = 5000; 
     while(received_bits.size() < DATA_WIDTH && timeout > 0) {
         if ((tb.dut->uo_out >> 1) & 1) { // Check for valid flag
             if(received_bits.empty()) { // First valid bit

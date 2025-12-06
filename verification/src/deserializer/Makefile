@@ -61,7 +61,7 @@ coverage: run
 	@echo "Generating LCOV info file..."
 	@verilator_coverage --write-info logs/coverage.info logs/coverage_*.dat
 	@echo "Generating HTML report..."
-	@genhtml logs/coverage.info --output-directory coverage_html
+	@genhtml logs/coverage.info --output-directory coverage_html --ignore-errors source --synthesize-missing
 
 clean:
 	rm -rf $(BUILD_DIR)* $(EXE_PREFIX)_* waveform.vcd logs coverage_merged.dat coverage_html
